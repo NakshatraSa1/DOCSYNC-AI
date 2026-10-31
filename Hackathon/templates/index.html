@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Csync AI — Smarter Code Reviews. Stronger Code.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       CSYNC AI DESIGN SYSTEM
+       Theme: Deep Ink-Black & Graphite Surfaces with Soft Silver & Cold Cyan
+       ========================================================================== */
+    :root {
+      --bg-canvas: #090A0D;
+      --bg-surface-1: #111317;
+      --bg-surface-2: #171A21;
+      --bg-surface-3: #1E222B;
+      --bg-surface-elevated: #242935;
+      
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-medium: rgba(255, 255, 255, 0.12);
+      --border-accent: rgba(56, 189, 248, 0.35);
+      
+      --text-display: #F1F4F8;
+      --text-body: #C9D0DC;
+      --text-muted: #7E8796;
+      --text-dim: #4B5362;
+      
+      --accent-cyan: #38BDF8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.15);
+      --accent-cyan-surface: rgba(56, 189, 248, 0.08);
+      
+      --severity-crit: #F87171;
+      --severity-crit-bg: rgba(239, 68, 68, 0.12);
+      --severity-high: #FBBF24;
+      --severity-high-bg: rgba(245, 158, 11, 0.12);
+      --severity-med: #FCD34D;
+      --severity-med-bg: rgba(252, 211, 77, 0.1);
+      --severity-low: #7DD3FC;
+      --severity-low-bg: rgba(125, 211, 252, 0.1);
+      --severity-info: #34D399;
+      --severity-info-bg: rgba(52, 211, 153, 0.12);
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-full: 9999px;
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Menlo, Monaco, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-body);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Ambient Subtle Glow */
+    .ambient-glow {
+      position: fixed;
+      top: -120px;
+      right: 15%;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, rgba(9, 10, 13, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Layout Shell */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 250px;
+      background: var(--bg-surface-1);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #1C2331 0%, #111622 100%);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-display);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-tag {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: var(--accent-cyan-surface);
+      border: 1px solid var(--border-accent);
+      padding: 1px 5px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      letter-spacing: -0.1px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      margin: 12px 0 8px 10px;
+    }
+
+    .nav-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      list-style: none;
+    }
+
+    .nav-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+
+    .nav-button:hover {
+      background: var(--bg-surface-2);
+      color: var(--text-display);
+    }
+
+    .nav-button.active {
+      background: var(--bg-surface-3);
+      color: var(--text-display);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .nav-button svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* History Pill Trigger in Sidebar */
+    .history-trigger-pill {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      background: var(--bg-surface-3);
+      color: var(--accent-cyan);
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .sidebar-footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-footer a:hover {
+      color: var(--accent-cyan);
+    }
+
+    /* Main Content Area */
+    .main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    /* Top Navigation Header */
+    .top-header {
+      height: 64px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(17, 19, 23, 0.7);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .breadcrumb-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb-active {
+      color: var(--text-display);
+      font-weight: 500;
+    }
+
+    /* Gemma AI Connection Pill */
+    .gemma-pill {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-body);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .gemma-pill:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-surface-3);
+    }
+
+    .pulse-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+      position: relative;
+    }
+
+    .pulse-indicator::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      animation: ripple 2s infinite ease-out;
+    }
+
+    @keyframes ripple {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    .gemma-pill.offline .pulse-indicator {
+      background: #EF4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    }
+    .gemma-pill.offline .pulse-indicator::after {
+      display: none;
+    }
+
+    /* Content Container */
+    .content-container {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 36px 32px 80px 32px;
+    }
+
+    /* Hero Section */
+    .hero-panel {
+      position: relative;
+      background: linear-gradient(180deg, rgba(23, 26, 33, 0.8) 0%, rgba(17, 19, 23, 0.95) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 32px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      opacity: 0.8;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      background: var(--accent-cyan-surface);
+      border: 1px solid var(--border-accent);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      margin-bottom: 14px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-display);
+      letter-spacing: -0.4px;
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 680px;
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+
+    .hero-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .hero-feature-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-body);
+    }
+
+    .hero-feature-item svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--accent-cyan);
+      flex-shrink: 0;
+    }
+
+    /* Workflow Cards */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-pill {
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--bg-surface-3);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Scope Selector Tabs */
+    .scope-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .scope-card {
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .scope-card:hover {
+      background: var(--bg-surface-2);
+      border-color: var(--border-medium);
+      transform: translateY(-1px);
+    }
+
+    .scope-card.selected {
+      background: var(--bg-surface-2);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 16px var(--accent-cyan-glow);
+    }
+
+    .scope-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .scope-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-display);
+    }
+
+    .scope-card.selected .scope-card-icon {
+      background: var(--accent-cyan-surface);
+      color: var(--accent-cyan);
+    }
+
+    .scope-card-icon svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+    }
+
+    .radio-circle {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .scope-card.selected .radio-circle {
+      border-color: var(--accent-cyan);
+      background: var(--accent-cyan-surface);
+    }
+
+    .radio-circle::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.15s ease;
+    }
+
+    .scope-card.selected .radio-circle::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .scope-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-display);
+    }
+
+    .scope-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Scope Panels */
+    .scope-pane {
+      display: none;
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+
+    .scope-pane.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* File List Table */
+    .file-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      margin-top: 12px;
+      background: var(--bg-surface-2);
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .file-badge.modified { background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); }
+    .file-badge.added { background: rgba(52, 211, 153, 0.12); color: var(--severity-info); }
+    .file-badge.untracked { background: rgba(252, 211, 77, 0.12); color: var(--severity-med); }
+
+    /* Inputs & Selects */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-body);
+      margin-bottom: 6px;
+    }
+
+    .form-select, .form-input, .form-textarea {
+      width: 100%;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-sm);
+      color: var(--text-display);
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-textarea {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      resize: vertical;
+      min-height: 180px;
+      line-height: 1.5;
+    }
+
+    .form-select:focus, .form-input:focus, .form-textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 1px var(--accent-cyan);
+    }
+
+    /* Progressive Disclosure: Rules & Advanced Settings */
+    .collapsible-box {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface-1);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .collapsible-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+
+    .collapsible-header:hover {
+      background: var(--bg-surface-2);
+    }
+
+    .collapsible-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .collapsible-chevron {
+      transition: transform 0.2s ease;
+      stroke: var(--text-muted);
+    }
+
+    .collapsible-box.open .collapsible-chevron {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-content {
+      display: none;
+      padding: 18px 20px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface-2);
+    }
+
+    .collapsible-box.open .collapsible-content {
+      display: block;
+    }
+
+    /* Engine Options Grid */
+    .engine-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .engine-radio-card {
+      padding: 12px 14px;
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .engine-radio-card:hover {
+      background: var(--bg-surface-3);
+    }
+
+    .engine-radio-card.active {
+      border-color: var(--accent-cyan);
+      background: var(--bg-surface-3);
+    }
+
+    /* Start Button Area */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 36px;
+    }
+
+    .action-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+      color: #06101E;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-medium);
+      color: var(--text-display);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-surface-3);
+      border-color: var(--text-muted);
+    }
+
+    /* Telemetry Progress Bar */
+    .telemetry-panel {
+      display: none;
+      padding: 24px;
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-md);
+      margin-bottom: 32px;
+      animation: pulseBorder 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseBorder {
+      0%, 100% { border-color: rgba(56, 189, 248, 0.3); }
+      50% { border-color: rgba(56, 189, 248, 0.7); }
+    }
+
+    .telemetry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .telemetry-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .telemetry-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(56, 189, 248, 0.2);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .pipeline-steps {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .pipeline-step {
+      flex: 1;
+      padding: 10px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .pipeline-step.active {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: var(--accent-cyan-surface);
+      font-weight: 600;
+    }
+
+    .pipeline-step.done {
+      border-color: rgba(52, 211, 153, 0.3);
+      color: var(--severity-info);
+    }
+
+    /* Results Section */
+    .results-container {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .verdict-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-radius: var(--radius-md);
+      margin-bottom: 24px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .verdict-banner.FAILED {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .verdict-banner.WARNINGS {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .verdict-banner.PASSED {
+      background: rgba(52, 211, 153, 0.08);
+      border-color: rgba(52, 211, 153, 0.3);
+    }
+
+    .verdict-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-display);
+      margin-bottom: 4px;
+    }
+
+    .verdict-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Severity Metrics Summary Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .metric-card {
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-count {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-display);
+      font-family: var(--font-mono);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-card.crit .metric-label { color: var(--severity-crit); }
+    .metric-card.high .metric-label { color: var(--severity-high); }
+    .metric-card.med .metric-label { color: var(--severity-med); }
+    .metric-card.low .metric-label { color: var(--severity-low); }
+    .metric-card.info .metric-label { color: var(--severity-info); }
+
+    /* Findings Filter & List */
+    .findings-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-surface-1);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .filter-tab {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-tab.active {
+      background: var(--bg-surface-3);
+      color: var(--text-display);
+    }
+
+    .findings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .finding-card {
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all 0.15s ease;
+    }
+
+    .finding-card:hover {
+      border-color: var(--border-medium);
+    }
+
+    .finding-card-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: var(--bg-surface-1);
+    }
+
+    .finding-card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-severity {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-severity.CRITICAL { background: var(--severity-crit-bg); color: var(--severity-crit); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-severity.HIGH { background: var(--severity-high-bg); color: var(--severity-high); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-severity.MEDIUM { background: var(--severity-med-bg); color: var(--severity-med); border: 1px solid rgba(252, 211, 77, 0.3); }
+    .badge-severity.LOW { background: var(--severity-low-bg); color: var(--severity-low); border: 1px solid rgba(125, 211, 252, 0.3); }
+    .badge-severity.INFO { background: var(--severity-info-bg); color: var(--severity-info); border: 1px solid rgba(52, 211, 153, 0.3); }
+
+    .finding-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-display);
+    }
+
+    .finding-loc {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .finding-card-body {
+      padding: 0 20px 20px 20px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface-2);
+    }
+
+    .finding-snippet {
+      margin-top: 14px;
+      background: #0B0D11;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #E2E8F0;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .finding-detail-row {
+      margin-top: 14px;
+    }
+
+    .detail-heading {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .detail-text {
+      font-size: 13px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    .remediation-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: rgba(56, 189, 248, 0.05);
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .remediation-box .detail-heading {
+      color: var(--accent-cyan);
+    }
+
+    /* ==========================================================================
+       REVIEW HISTORY MODAL POP-UP (EXPLICIT REQUIREMENT)
+       Hidden by default. Opens ONLY on click of Review History.
+       Closes with (x) button or clicking backdrop outside modal.
+       ========================================================================== */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 5, 8, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-dialog {
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 680px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transform: scale(0.96);
+      transition: transform 0.2s ease;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface-1);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-display);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-display);
+      background: var(--bg-surface-2);
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* History List Items */
+    .history-card {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .history-card:hover {
+      border-color: var(--border-medium);
+      background: var(--bg-surface-3);
+    }
+
+    .history-card-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .history-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 10px;
+    }
+
+    .history-chips {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .history-chip {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface-1);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Exact Required Empty State */
+    .empty-history-state {
+      padding: 48px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .empty-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    .empty-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-medium);
+      color: var(--text-display);
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .app-shell { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .scope-selector-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <div class="app-shell">
+    
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <!-- Original Csync AI Wordmark Treatment -->
+      <div class="brand-container">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-dasharray="28 6"/>
+            <path d="M15 9l-4 4 4 4" stroke="#F1F4F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="2" fill="#38BDF8"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">
+            CSYNC <span class="brand-tag">AI</span>
+          </div>
+          <div class="brand-sub">Smarter Code Reviews. Stronger Code.</div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="nav-section-title">Navigation</div>
+      <ul class="nav-items">
+        <li>
+          <button class="nav-button active" onclick="switchNavTab('dashboard')">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Dashboard
+          </button>
+        </li>
+        <li>
+          <!-- Explicit Requirement: Small, clearly labeled Review History option in sidebar -->
+          <button class="nav-button" id="sidebarHistoryBtn" onclick="openReviewHistoryModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Review History
+            <span class="history-trigger-pill" id="historyCounterPill">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-button" onclick="toggleRulesDrawer()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Team Rules
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div style="margin-bottom: 6px;">100% On-Device &amp; Private</div>
+        <div>Model: <strong>Gemma 4 E4B</strong></div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="main-viewport">
+      
+      <!-- Top Header Bar -->
+      <header class="top-header">
+        <div class="breadcrumb-area">
+          <span>Csync AI</span>
+          <span>/</span>
+          <span class="breadcrumb-active" id="currentSectionTitle">Code Review Workspace</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <!-- Explicit Requirement: Review History header shortcut -->
+          <button class="btn-secondary" onclick="openReviewHistoryModal()" style="padding: 6px 12px; font-size: 11px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Review History
+          </button>
+
+          <!-- Gemma Local AI Status Indicator -->
+          <div class="gemma-pill" id="gemmaStatusPill" onclick="checkGemmaStatus()" title="Click to verify Ollama Gemma connection">
+            <div class="pulse-indicator" id="gemmaPulse"></div>
+            <span id="gemmaStatusLabel">Gemma 4 E4B: Connecting...</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content Container -->
+      <div class="content-container">
+
+        <!-- Hero Section -->
+        <section class="hero-panel">
+          <div class="hero-badge">On-Device Local AI • Gemma 4 E4B</div>
+          <h1 class="hero-title">Private, Automated Pull Request Reviews</h1>
+          <p class="hero-desc">
+            Csync AI analyzes your code for security vulnerabilities, logic errors, edge cases, runtime risks, and quality standards. Everything executes locally on your machine with zero cloud data transfer.
+          </p>
+          <div class="hero-features">
+            <div class="hero-feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>100% Local (Zero Cloud Leakage)</span>
+            </div>
+            <div class="hero-feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Deterministic Secret &amp; Vulnerability Scanner</span>
+            </div>
+            <div class="hero-feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span>Strict Code Preservation (Zero Auto-Edits)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Progressive Workflow Step 1: Scope Selection -->
+        <div class="section-header">
+          <div class="section-title">
+            <span class="step-pill">STEP 1</span>
+            Select Code to Review
+          </div>
+        </div>
+
+        <div class="scope-selector-grid">
+          <!-- Option 1: Uncommitted Changes -->
+          <div class="scope-card selected" id="cardUncommitted" onclick="selectScope('uncommitted')">
+            <div class="scope-card-header">
+              <div class="scope-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              </div>
+              <div class="radio-circle"></div>
+            </div>
+            <div class="scope-card-title">Uncommitted Changes</div>
+            <div class="scope-card-sub">Inspect working tree, staged diffs, and newly created untracked files.</div>
+          </div>
+
+          <!-- Option 2: Branch Comparison -->
+          <div class="scope-card" id="cardBranch" onclick="selectScope('branch')">
+            <div class="scope-card-header">
+              <div class="scope-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>
+              </div>
+              <div class="radio-circle"></div>
+            </div>
+            <div class="scope-card-title">Branch Comparison</div>
+            <div class="scope-card-sub">Compare your active branch diff against main or another base branch.</div>
+          </div>
+
+          <!-- Option 3: Custom Snippet / Upload -->
+          <div class="scope-card" id="cardCustom" onclick="selectScope('custom')">
+            <div class="scope-card-header">
+              <div class="scope-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+              </div>
+              <div class="radio-circle"></div>
+            </div>
+            <div class="scope-card-title">Paste Code / Upload</div>
+            <div class="scope-card-sub">Directly review any single script, function, or pull request diff text.</div>
+          </div>
+        </div>
+
+        <!-- Scope Pane: Uncommitted Changes -->
+        <div class="scope-pane active" id="paneUncommitted">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px;">
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-display); margin-bottom: 4px;">
+                Target Repository: <span id="gitRepoBranchLabel" style="font-family: var(--font-mono); font-size: 12px;">detecting...</span>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" class="form-input" id="targetRepoInput" value="." placeholder="Repository path (e.g. . or C:\path\to\repo)" style="padding: 6px 10px; font-size: 12px; font-family: var(--font-mono); max-width: 380px;" onchange="loadGitInfo(true)">
+                <button class="btn-secondary" onclick="loadGitInfo(true)" style="padding: 6px 12px; font-size: 12px;" title="Refresh git status and uncommitted files">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                  Refresh Git
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="file-list" id="uncommittedFileList">
+            <div style="padding: 18px; text-align: center; color: var(--text-muted); font-size: 12px;">Scanning repository for changes...</div>
+          </div>
+        </div>
+
+        <!-- Scope Pane: Branch Comparison -->
+        <div class="scope-pane" id="paneBranch">
+          <div class="form-group">
+            <label class="form-label">Base Branch to Compare Against:</label>
+            <select class="form-select" id="baseBranchSelect">
+              <option value="main">main</option>
+              <option value="master">master</option>
+            </select>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted);">
+            Csync AI will compute the unified diff between your current branch and the selected base branch without modifying any code.
+          </div>
+        </div>
+
+        <!-- Scope Pane: Custom Snippet -->
+        <div class="scope-pane" id="paneCustom">
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div>
+              <label class="form-label">Target Filename:</label>
+              <input type="text" class="form-input" id="customFilename" value="service.py" placeholder="e.g. auth_controller.py">
+            </div>
+            <div>
+              <label class="form-label">Or Choose Local File:</label>
+              <input type="file" id="filePicker" onchange="handleFileUpload(event)" style="font-size: 12px; padding-top: 6px; color: var(--text-muted);">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Source Code / Diff to Review:</label>
+            <textarea class="form-textarea" id="customCodeInput" placeholder="# Paste code snippet or unified diff here...
+def authenticate(token):
+    eval('process_token(token)')
+    return True"></textarea>
+          </div>
+        </div>
+
+        <!-- Step 2: Progressive Disclosure - Custom Rules & Engine Mode -->
+        <div class="collapsible-box" id="rulesBox">
+          <div class="collapsible-header" onclick="toggleCollapsible('rulesBox')">
+            <div class="collapsible-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              <span>Team Rules &amp; Review Standards</span>
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(Configurable via .csync.md)</span>
+            </div>
+            <svg class="collapsible-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+          <div class="collapsible-content">
+            <div style="margin-bottom: 10px; font-size: 12px; color: var(--text-muted);">
+              Csync AI automatically injects these rules into Gemma 4 E4B so feedback adheres to your specific engineering policies.
+            </div>
+            <textarea class="form-textarea" id="rulesEditorText" style="min-height: 140px;"></textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+              <button class="btn-secondary" onclick="saveTeamRules()">Save Rules to .csync.md</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Engine Mode Selection -->
+        <div class="collapsible-box" id="engineBox">
+          <div class="collapsible-header" onclick="toggleCollapsible('engineBox')">
+            <div class="collapsible-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              <span>Review Engine Options</span>
+            </div>
+            <svg class="collapsible-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+          <div class="collapsible-content">
+            <div class="engine-options">
+              <div class="engine-radio-card active" id="modeHybrid" onclick="setEngineMode('hybrid')">
+                <input type="radio" name="engineMode" value="hybrid" checked style="accent-color: var(--accent-cyan);">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600; color: var(--text-display);">Hybrid Intelligence (Recommended)</div>
+                  <div style="font-size: 11px; color: var(--text-muted);">Gemma 4 E4B + Deterministic Static Security Scanner</div>
+                </div>
+              </div>
+              <div class="engine-radio-card" id="modeStatic" onclick="setEngineMode('static')">
+                <input type="radio" name="engineMode" value="static" style="accent-color: var(--accent-cyan);">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600; color: var(--text-display);">Static Scanner Only</div>
+                  <div style="font-size: 11px; color: var(--text-muted);">Instant pattern scan (skips AI model)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Trigger Bar -->
+        <div class="action-bar">
+          <div class="action-meta">
+            Ready to review with <strong style="color: var(--text-display);">Gemma 4 E4B</strong> via local Ollama.
+          </div>
+          <button class="btn-primary" id="btnStartReview" onclick="executeReview()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Start Csync AI Review
+          </button>
+        </div>
+
+        <!-- Live Telemetry Panel -->
+        <div class="telemetry-panel" id="telemetryPanel">
+          <div class="telemetry-header">
+            <div class="telemetry-title">
+              <div class="telemetry-spinner"></div>
+              <span id="telemetryStatusText">Analyzing code changes...</span>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-cyan);">gemma4:e4b @ localhost</span>
+          </div>
+          <div class="pipeline-steps">
+            <div class="pipeline-step active" id="step1">1. Reading Changes</div>
+            <div class="pipeline-step" id="step2">2. Static Pattern Scan</div>
+            <div class="pipeline-step" id="step3">3. Gemma 4 E4B Inference</div>
+            <div class="pipeline-step" id="step4">4. Markdown Report</div>
+          </div>
+        </div>
+
+        <!-- Results Explorer -->
+        <section class="results-container" id="resultsContainer">
+          
+          <!-- Verdict Banner -->
+          <div class="verdict-banner FAILED" id="verdictBanner">
+            <div>
+              <div class="verdict-title" id="verdictTitle">Review Complete</div>
+              <div class="verdict-desc" id="verdictDesc">Results ready for inspection.</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" onclick="exportMarkdownReport()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Export Report (.md)
+              </button>
+            </div>
+          </div>
+
+          <!-- Metrics Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card crit">
+              <div class="metric-count" id="countCrit">0</div>
+              <div class="metric-label">Critical</div>
+            </div>
+            <div class="metric-card high">
+              <div class="metric-count" id="countHigh">0</div>
+              <div class="metric-label">High</div>
+            </div>
+            <div class="metric-card med">
+              <div class="metric-count" id="countMed">0</div>
+              <div class="metric-label">Medium</div>
+            </div>
+            <div class="metric-card low">
+              <div class="metric-count" id="countLow">0</div>
+              <div class="metric-label">Low</div>
+            </div>
+            <div class="metric-card info">
+              <div class="metric-count" id="countInfo">0</div>
+              <div class="metric-label">Info</div>
+            </div>
+          </div>
+
+          <!-- Findings Toolbar -->
+          <div class="findings-toolbar">
+            <div class="filter-tabs">
+              <button class="filter-tab active" onclick="filterFindings('ALL')">All Findings (<span id="totalFindingsBadge">0</span>)</button>
+              <button class="filter-tab" onclick="filterFindings('CRITICAL')">Critical</button>
+              <button class="filter-tab" onclick="filterFindings('HIGH')">High</button>
+              <button class="filter-tab" onclick="filterFindings('MEDIUM')">Medium</button>
+              <button class="filter-tab" onclick="filterFindings('LOW')">Low</button>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              Engine: <strong style="color: var(--text-display);" id="activeEngineLabel">Gemma 4 E4B + Scanner</strong>
+            </div>
+          </div>
+
+          <!-- Findings Card List -->
+          <div class="findings-list" id="findingsList">
+            <!-- Dynamically populated -->
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ==========================================================================
+       REVIEW HISTORY MODAL POP-UP (EXPLICIT USER REQUIREMENT)
+       1. Removed from permanent home dashboard.
+       2. Opened by clicking Review History option.
+       3. Includes close (x) button and closes on outside click.
+       4. Shows actual review history from backend.
+       5. Displays exact empty state: "No reviews yet. Your completed reviews will appear here."
+       ========================================================================== -->
+  <div class="modal-backdrop" id="reviewHistoryModal" onclick="handleBackdropClick(event)">
+    <div class="modal-dialog" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Review History
+        </div>
+        <button class="modal-close-btn" onclick="closeReviewHistoryModal()" title="Close (Esc)">
+          &times;
+        </button>
+      </div>
+
+      <div class="modal-body" id="historyModalBody">
+        <!-- Dynamically rendered or empty state -->
+        <div class="empty-history-state" id="emptyHistoryState">
+          <div class="empty-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <div class="empty-text">No reviews yet. Your completed reviews will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Application Script -->
+  <script>
+    // State
+    let currentScope = 'uncommitted';
+    let currentEngineMode = 'hybrid';
+    let currentFindings = [];
+    let currentReportMarkdown = '';
+    let activeFilter = 'ALL';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkGemmaStatus();
+      loadGitInfo();
+      loadTeamRules();
+      loadHistoryCount();
+
+      // Keyboard Esc to close modal
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeReviewHistoryModal();
+        }
+      });
+    });
+
+    // Gemma AI Status Check
+    async function checkGemmaStatus() {
+      const pill = document.getElementById('gemmaStatusPill');
+      const label = document.getElementById('gemmaStatusLabel');
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        if (data.ollama_online) {
+          pill.classList.remove('offline');
+          label.textContent = `Gemma 4 E4B: Connected`;
+          pill.title = data.details;
+        } else {
+          pill.classList.add('offline');
+          label.textContent = `Ollama: Offline`;
+          pill.title = data.details;
+        }
+      } catch (err) {
+        pill.classList.add('offline');
+        label.textContent = `Ollama: Unreachable`;
+      }
+    }
+
+    // Git Status
+    async function loadGitInfo(showToastFeedback = false) {
+      const label = document.getElementById('gitRepoBranchLabel');
+      const list = document.getElementById('uncommittedFileList');
+      const branchSelect = document.getElementById('baseBranchSelect');
+      const repoInput = document.getElementById('targetRepoInput');
+      const repoPath = repoInput ? repoInput.value.trim() : '.';
+      
+      try {
+        const res = await fetch(`/api/git-info?repo_path=${encodeURIComponent(repoPath || '.')}`);
+        const data = await res.json();
+        if (data.is_repo) {
+          label.innerHTML = `<strong>${data.repo_name}</strong> &bull; <span style="color: var(--accent-cyan); font-family: var(--font-mono);">${data.current_branch}</span> (${data.uncommitted_count} uncommitted)`;
+          
+          if (data.branches && data.branches.length) {
+            branchSelect.innerHTML = data.branches.map(b => `<option value="${b}">${b}</option>`).join('');
+          }
+
+          if (data.uncommitted_files && data.uncommitted_files.length) {
+            list.innerHTML = data.uncommitted_files.map(f => `
+              <div class="file-item">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                  ${f.filename}
+                </span>
+                <span class="file-badge ${f.status}">${f.status}</span>
+              </div>
+            `).join('');
+          } else {
+            list.innerHTML = '<div style="padding: 18px; text-align: center; color: var(--text-muted); font-size: 12px;">Working directory clean. No uncommitted changes detected.</div>';
+          }
+          if (showToastFeedback) {
+            showToast(`Git refreshed: ${data.uncommitted_count} uncommitted file(s) found on ${data.current_branch}`);
+          }
+        } else {
+          label.innerHTML = `<span style="color: var(--severity-high);">Not a git repository</span> (${data.repo_path || '.'})`;
+          list.innerHTML = `
+            <div style="padding: 22px; text-align: center;">
+              <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px;">Directory is not initialized as a Git repository.</div>
+              <button class="btn-primary" onclick="initGitRepo()" style="font-size: 12px; padding: 7px 16px;">
+                Initialize Git Repository Here
+              </button>
+            </div>
+          `;
+          if (showToastFeedback) {
+            showToast('Target path is not a Git repository');
+          }
+        }
+      } catch (err) {
+        label.textContent = 'Git inspection unavailable';
+        if (showToastFeedback) {
+          showToast('Failed to reach Git inspection service');
+        }
+      }
+    }
+
+    async function initGitRepo() {
+      const repoInput = document.getElementById('targetRepoInput');
+      const repoPath = repoInput ? repoInput.value.trim() : '.';
+      try {
+        const res = await fetch('/api/git-init', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repo_path: repoPath || '.' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          loadGitInfo(true);
+        } else {
+          showToast(data.error || 'Failed to initialize Git');
+        }
+      } catch (err) {
+        showToast('Error initializing Git');
+      }
+    }
+
+    // Team Rules
+    async function loadTeamRules() {
+      try {
+        const res = await fetch('/api/rules');
+        const data = await res.json();
+        document.getElementById('rulesEditorText').value = data.rules || '';
+      } catch (err) {}
+    }
+
+    async function saveTeamRules() {
+      const rules = document.getElementById('rulesEditorText').value;
+      try {
+        const res = await fetch('/api/rules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rules })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Team rules saved successfully to .csync.md');
+        }
+      } catch (err) {
+        showToast('Failed to save rules');
+      }
+    }
+
+    // Scope Selection
+    function selectScope(scope) {
+      currentScope = scope;
+      ['uncommitted', 'branch', 'custom'].forEach(s => {
+        const cap = s.charAt(0).toUpperCase() + s.slice(1);
+        const card = document.getElementById(`card${cap}`);
+        const pane = document.getElementById(`pane${cap}`);
+        if (s === scope) {
+          card.classList.add('selected');
+          pane.classList.add('active');
+        } else {
+          card.classList.remove('selected');
+          pane.classList.remove('active');
+        }
+      });
+    }
+
+    // Engine Mode
+    function setEngineMode(mode) {
+      currentEngineMode = mode;
+      document.getElementById('modeHybrid').classList.toggle('active', mode === 'hybrid');
+      document.getElementById('modeStatic').classList.toggle('active', mode === 'static');
+    }
+
+    function toggleCollapsible(id) {
+      document.getElementById(id).classList.toggle('open');
+    }
+
+    function toggleRulesDrawer() {
+      const box = document.getElementById('rulesBox');
+      box.classList.toggle('open');
+      if (box.classList.contains('open')) {
+        box.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('customFilename').value = file.name;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        document.getElementById('customCodeInput').value = evt.target.result;
+        showToast(`Loaded ${file.name}`);
+      };
+      reader.readAsText(file);
+    }
+
+    // Execute Review
+    async function executeReview() {
+      const btn = document.getElementById('btnStartReview');
+      const telemetry = document.getElementById('telemetryPanel');
+      const statusText = document.getElementById('telemetryStatusText');
+      const resultsContainer = document.getElementById('resultsContainer');
+
+      btn.disabled = true;
+      telemetry.style.display = 'block';
+      resultsContainer.style.display = 'none';
+
+      // Telemetry step progress
+      setTelemetryStep(1);
+      statusText.textContent = 'Reading code changes and git status...';
+
+      const targetRepoInput = document.getElementById('targetRepoInput');
+      const payload = {
+        scope: currentScope,
+        repo_path: targetRepoInput ? targetRepoInput.value.trim() : '.',
+        base_branch: document.getElementById('baseBranchSelect').value,
+        custom_code: document.getElementById('customCodeInput').value,
+        custom_filename: document.getElementById('customFilename').value || 'service.py',
+        static_only: currentEngineMode === 'static',
+      };
+
+      setTimeout(() => {
+        setTelemetryStep(2);
+        statusText.textContent = 'Running deterministic static security patterns...';
+      }, 700);
+
+      if (currentEngineMode !== 'static') {
+        setTimeout(() => {
+          setTelemetryStep(3);
+          statusText.textContent = 'Gemma 4 E4B private analysis via Ollama...';
+        }, 1500);
+      }
+
+      try {
+        const response = await fetch('/api/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        setTelemetryStep(4);
+        statusText.textContent = 'Compiling review report...';
+
+        const data = await response.json();
+        telemetry.style.display = 'none';
+        btn.disabled = false;
+
+        if (response.ok) {
+          renderReviewResults(data);
+          loadHistoryCount();
+          showToast('Review completed successfully');
+        } else {
+          showToast(data.error || 'Review failed');
+        }
+      } catch (err) {
+        telemetry.style.display = 'none';
+        btn.disabled = false;
+        showToast('Network error executing review: ' + err.message);
+      }
+    }
+
+    function setTelemetryStep(stepNum) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step${i}`);
+        if (i < stepNum) {
+          el.className = 'pipeline-step done';
+        } else if (i === stepNum) {
+          el.className = 'pipeline-step active';
+        } else {
+          el.className = 'pipeline-step';
+        }
+      }
+    }
+
+    // Render Review Results
+    function renderReviewResults(data) {
+      currentFindings = data.findings || [];
+      currentReportMarkdown = data.markdown_report || '';
+
+      const container = document.getElementById('resultsContainer');
+      container.style.display = 'block';
+
+      // Verdict Banner
+      const banner = document.getElementById('verdictBanner');
+      const title = document.getElementById('verdictTitle');
+      const desc = document.getElementById('verdictDesc');
+
+      banner.className = `verdict-banner ${data.status}`;
+      if (data.status === 'FAILED') {
+        title.textContent = 'Action Required: Security Flaws Detected';
+        desc.textContent = `Found ${data.counts.CRITICAL} Critical and ${data.counts.HIGH} High severity issues requiring resolution before merge.`;
+      } else if (data.status === 'WARNINGS') {
+        title.textContent = 'Review Passed with Suggestions';
+        desc.textContent = `Found ${data.counts.MEDIUM} Medium and ${data.counts.LOW} Low severity observations.`;
+      } else {
+        title.textContent = 'Passed: Clean Pull Request';
+        desc.textContent = 'No critical security vulnerabilities or logic errors detected.';
+      }
+
+      // Metrics
+      document.getElementById('countCrit').textContent = data.counts.CRITICAL || 0;
+      document.getElementById('countHigh').textContent = data.counts.HIGH || 0;
+      document.getElementById('countMed').textContent = data.counts.MEDIUM || 0;
+      document.getElementById('countLow').textContent = data.counts.LOW || 0;
+      document.getElementById('countInfo').textContent = data.counts.INFO || 0;
+      document.getElementById('totalFindingsBadge').textContent = currentFindings.length;
+
+      // Active engine
+      document.getElementById('activeEngineLabel').textContent = currentEngineMode === 'static' ? 'Static Scanner Only' : 'Gemma 4 E4B + Scanner';
+
+      filterFindings('ALL');
+      container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Filter Findings
+    function filterFindings(sev) {
+      activeFilter = sev;
+      const list = document.getElementById('findingsList');
+      const filtered = sev === 'ALL' ? currentFindings : currentFindings.filter(f => f.severity === sev);
+
+      // Update filter tabs
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent.includes(sev) || (sev === 'ALL' && tab.textContent.includes('All')));
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = `
+          <div style="padding: 36px; text-align: center; color: var(--text-muted); background: var(--bg-surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            ${sev === 'ALL' ? '🎉 No findings detected!' : `No ${sev} severity findings.`}
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = filtered.map((f, idx) => `
+        <div class="finding-card">
+          <div class="finding-card-header" onclick="toggleFindingCard(${idx})">
+            <div class="finding-card-left">
+              <span class="badge-severity ${f.severity}">${f.severity}</span>
+              <div>
+                <div class="finding-title">${escapeHtml(f.title)}</div>
+                <div class="finding-loc">${f.filename}${f.line ? ':' + f.line : ''} &bull; ${f.category}</div>
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+          <div class="finding-card-body" id="findingBody${idx}">
+            ${f.snippet ? `
+              <div class="finding-snippet">${escapeHtml(f.snippet)}</div>
+            ` : ''}
+            <div class="finding-detail-row">
+              <div class="detail-heading">Technical Explanation</div>
+              <div class="detail-text">${escapeHtml(f.explanation)}</div>
+            </div>
+            <div class="remediation-box">
+              <div class="detail-heading">Suggested Remediation</div>
+              <div class="detail-text">${escapeHtml(f.suggestion)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleFindingCard(idx) {
+      const body = document.getElementById(`findingBody${idx}`);
+      if (body) {
+        body.style.display = body.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    // Export Markdown Report
+    async function exportMarkdownReport() {
+      if (!currentReportMarkdown) {
+        showToast('No report available to export');
+        return;
+      }
+      try {
+        const res = await fetch('/api/export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ markdown: currentReportMarkdown })
+        });
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'csync_ai_report.md';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast('Downloaded csync_ai_report.md');
+      } catch (err) {
+        showToast('Export failed');
+      }
+    }
+
+    // ==========================================================================
+    // REVIEW HISTORY MODAL (EXPLICIT USER REQUIREMENT)
+    // 1. Opens ONLY when clicking Review History option.
+    // 2. Closes on close (x) button or clicking backdrop outside modal.
+    // 3. Displays actual review history from backend.
+    // 4. Exact empty state: "No reviews yet. Your completed reviews will appear here."
+    // ==========================================================================
+    async function openReviewHistoryModal() {
+      const modal = document.getElementById('reviewHistoryModal');
+      const body = document.getElementById('historyModalBody');
+      modal.classList.add('open');
+
+      try {
+        const res = await fetch('/api/history');
+        const data = await res.json();
+        const records = data.history || [];
+
+        if (!records.length) {
+          // Exact requirement #6: "No reviews yet. Your completed reviews will appear here."
+          body.innerHTML = `
+            <div class="empty-history-state">
+              <div class="empty-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              </div>
+              <div class="empty-text">No reviews yet. Your completed reviews will appear here.</div>
+            </div>
+          `;
+          return;
+        }
+
+        body.innerHTML = records.map(r => `
+          <div class="history-card">
+            <div class="history-card-left">
+              <div class="history-card-title">
+                <span>${escapeHtml(r.target_name)}</span>
+                <span class="badge-severity ${r.status}">${r.status}</span>
+              </div>
+              <div class="history-card-meta">
+                <span>${r.timestamp}</span>
+                <span>&bull;</span>
+                <span>${r.review_type}</span>
+                <span>&bull;</span>
+                <span>${r.findings_count} findings</span>
+              </div>
+              <div class="history-chips">
+                <span class="history-chip" style="color: var(--severity-crit);">Crit: ${r.counts.CRITICAL || 0}</span>
+                <span class="history-chip" style="color: var(--severity-high);">High: ${r.counts.HIGH || 0}</span>
+                <span class="history-chip" style="color: var(--severity-med);">Med: ${r.counts.MEDIUM || 0}</span>
+              </div>
+            </div>
+            <div>
+              <button class="btn-secondary" onclick="loadHistoryItem('${r.id}')" style="font-size: 11px; padding: 6px 12px;">
+                Load Results
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        body.innerHTML = '<div style="padding: 24px; color: var(--severity-crit);">Failed to load review history.</div>';
+      }
+    }
+
+    function closeReviewHistoryModal() {
+      document.getElementById('reviewHistoryModal').classList.remove('open');
+    }
+
+    // Close when clicking backdrop outside modal
+    function handleBackdropClick(e) {
+      if (e.target.id === 'reviewHistoryModal') {
+        closeReviewHistoryModal();
+      }
+    }
+
+    async function loadHistoryItem(id) {
+      try {
+        const res = await fetch(`/api/history/${id}`);
+        const data = await res.json();
+        closeReviewHistoryModal();
+        renderReviewResults(data);
+        showToast(`Loaded review: ${data.target_name}`);
+      } catch (err) {
+        showToast('Failed to load past review');
+      }
+    }
+
+    async function loadHistoryCount() {
+      try {
+        const res = await fetch('/api/history');
+        const data = await res.json();
+        const cnt = (data.history || []).length;
+        document.getElementById('historyCounterPill').textContent = cnt;
+      } catch (err) {}
+    }
+
+    function switchNavTab(tab) {
+      if (tab === 'dashboard') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
