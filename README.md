@@ -36,7 +36,7 @@ Installation
 
 1. Clone the repository
 
-git clone https://github.com/YOUR_USERNAME/Csync-AI.git
+git clone https://github.com/NakshatraSa1/Csync-AI.git
 cd Csync-AI
 
 2. Download Gemma 4 E4B
